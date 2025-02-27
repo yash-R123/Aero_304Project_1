@@ -88,7 +88,7 @@ for system = 1:length(syst)
         eigenval = eig(Y);
 
         % Determines the stability Lagrange Point
-        stable = all(real(eigenval) < 0);
+        stable = all(real(eigenval) < 0.00001);
         stability_status = "Stable";
         fprintf('\n');
         
