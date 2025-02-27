@@ -56,17 +56,17 @@ syst = {'Sun-Earth', 'Earth-Moon', 'Saturn-Titan'};
 mu_values = [3.0039e-6, 1.2151e-2, 2.366e-4]; % Given mass ratios
 
 % Define second derivatives of U at Lagrange points
-Uxx_val = [0.9890, 1.0110, -1.0000, 0.250, 0.250;  % Sun-Earth
-           0.8370, 1.1560, -1.0050, 0.250, 0.250;  % Earth-Moon
-           0.9580, 1.0430, -1.0000, 0.250, 0.250]; % Saturn-Titan
+Uxx_val = [-2.99953, 8.862087, -1.0000056, 0.75, 0.75;  % Sun-Earth
+           -2.84002, 7.38119, -1.0214, 0.75, 0.75;  % Earth-Moon
+           -2.99224, 8.82602, -1.0004, 0.75, 0.75]; % Saturn-Titan
 
-Uyy_val = [-1.0020, -1.0010, 1.0000, 0.750, 0.750;  % Sun-Earth
-           -1.0030, -1.0020, 1.0050, 0.750, 0.750;  % Earth-Moon
-           -1.0010, -1.0020, 1.0000, 0.750, 0.750]; % Saturn-Titan
+Uyy_val = [0, 0, 0, -1.25, -1.25;  % Sun-Earth
+           0, 0, 0, -1.25, -1.25;  % Earth-Moon
+           0, 0, 0, -1.25, -1.25]; % Saturn-Titan
 
-Uxy_val = [0, 0, 0, 0, 0; % Sun-Earth
-           0, 0, 0, 0, 0; % Earth-Moon
-           0, 0, 0, 0, 0]; % Saturn-Titan
+Uxy_val = [0, 0, 0, 1.29903, -1.29903; % Sun-Earth
+           0, 0, 0, 1.26747, -1.26747; % Earth-Moon
+           0, 0, 0, 1.29838, -1.29838]; % Saturn-Titan
 
 % Iterate over each system
 for system = 1:length(syst)
