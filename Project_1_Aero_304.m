@@ -1,34 +1,17 @@
-% Project_1_Aero_304.m
+%% Project_1_Aero_304.m
 % Circular Restricted Three-Body Problem (CR3BP) Analysis
+% Yash Rotkar, Tricarico Jr. Robert Roland, Niko Angelakos
+% Date: Feb 24th 2025
+
+clc; 
+clear;
+close all; % Closes all figures if any
 
 % Define constants
 G = 1; % Gravitational constant (normalized)
 
-% --- Function Definitions ---
-% CR3BP Equations of Motion (normalized)
-function dxydt = cr3bp_eom(t, xy, mu)
-    x = xy(1);
-    y = xy(2);
-    xdot = xy(3);
-    ydot = xy(4);
-
-    p1 = sqrt((x + mu)^2 + y^2);
-    p2 = sqrt((x - 1 + mu)^2 + y^2);
-
-    xddot = x + 2*ydot - (1-mu)*(x+mu)/p1^3 - mu*(x-1+mu)/p2^3;
-    yddot = y - 2*xdot - (1-mu)*y/p1^3 - mu*y/p2^3;
-
-    dxydt = [xdot; ydot; xddot; yddot];
-end
-
-% Effective Potential
-function U = U_potential(x, y, mu)
-    p1 = sqrt((x + mu)^2 + y^2);
-    p2 = sqrt((x - 1 + mu)^2 + y^2);
-    U = 0.5*(x^2 + y^2) + (1-mu)/p1 + mu/p2;
-end
-
-% --- Part (a): Equations of Motion (Symbolic Verification - Optional) ---
+%{
+%% --- Part (a): Equations of Motion (Symbolic Verification - Optional) ---
 % (This section is for symbolic verification and requires the Symbolic Math Toolbox)
 % Commented out to prevent errors if the toolbox is not installed.
 % syms x y xdot ydot mu real
@@ -39,11 +22,12 @@ end
 % % Lagrangian (L = T - V)
 %
 % % Derive equations of motion using Euler-Lagrange equations
+%}
 
-% --- Part (b): Equilibrium Points (L4 and L5) ---
+%% --- Part (b): Equilibrium Points (L4 and L5) ---
 disp('--- Part (b): Equilibrium Points (L4 and L5) ---');
 mu_values = [3.0039e-6, 1.2151e-2, 2.366e-4]; % Mass ratios for Sun-Earth, Earth-Moon, Saturn-Titan
-systems = {'Sun-Earth', 'Earth-Moon', 'Saturn-Titan'};
+system = {'Sun-Earth', 'Earth-Moon', 'Saturn-Titan'};
 
 for i = 1:length(mu_values)
     mu = mu_values(i);
@@ -56,13 +40,71 @@ for i = 1:length(mu_values)
     x_L5 = 0.5 - mu;
     y_L5 = -sqrt(3)/2;
 
-    fprintf('System: %s\n', systems{i});
+    fprintf('System: %s\n', system{i});
     fprintf('  mu = %.6f\n', mu);
     fprintf('  L4: x = %.6f, y = %.6f\n', x_L4, y_L4);
     fprintf('  L5: x = %.6f, y = %.6f\n', x_L5, y_L5);
+    fprintf('\n');
 end
 
-% --- Part (c): Stability of Lagrange Points ---
+%% Part (c): Stability of Lagrange Points
+disp('--- Part (c): Stability of Lagrange Points ---');
+fprintf('\n');
+
+% Define systems and mass ratios
+syst = {'Sun-Earth', 'Earth-Moon', 'Saturn-Titan'};
+mu_values = [3.0039e-6, 1.2151e-2, 2.366e-4]; % Given mass ratios
+
+% Define second derivatives of U at Lagrange points
+Uxx_val = [0.9890, 1.0110, -1.0000, 0.250, 0.250;  % Sun-Earth
+           0.8370, 1.1560, -1.0050, 0.250, 0.250;  % Earth-Moon
+           0.9580, 1.0430, -1.0000, 0.250, 0.250]; % Saturn-Titan
+
+Uyy_val = [-1.0020, -1.0010, 1.0000, 0.750, 0.750;  % Sun-Earth
+           -1.0030, -1.0020, 1.0050, 0.750, 0.750;  % Earth-Moon
+           -1.0010, -1.0020, 1.0000, 0.750, 0.750]; % Saturn-Titan
+
+Uxy_val = [0, 0, 0, 0, 0; % Sun-Earth
+           0, 0, 0, 0, 0; % Earth-Moon
+           0, 0, 0, 0, 0]; % Saturn-Titan
+
+% Iterate over each system
+for system = 1:length(syst)
+    fprintf('\n     System: %s    \n', syst{system});
+
+    % Iterates each Lagrange point
+    for i = 1:5
+        Uxx = Uxx_val(system, i);
+        Uyy = Uyy_val(system, i);
+        Uxy = Uxy_val(system, i);
+
+        % Constructa the Jacobian matrix
+        Y = [ 0   0   1  0;
+              0   0   0  1;
+             Uxx Uxy  0  2;
+             Uxy Uyy -2  0];
+
+        % Computes the eigenvalues
+        eigenval = eig(Y);
+
+        % Determines the stability Lagrange Point
+        stable = all(real(eigenval) < 0);
+        stability_status = "Stable";
+        fprintf('\n');
+        
+        if ~stable
+            stability_status = "Unstable";
+        end
+
+        % Displays results
+        fprintf('%s: Eigenvalues = [%.4f, %.4f, %.4f, %.4f]\n', ['L' num2str(i)], real(eigenval(1)), real(eigenval(2)), real(eigenval(3)), real(eigenval(4)));
+        fprintf(' Stability: %s\n', stability_status);
+    end
+end
+
+
+%{
+ --- Part (c): Stability of Lagrange Points ---
 disp('--- Part (c): Stability of Lagrange Points ---');
 mu_values = [3.0039e-6, 1.2151e-2, 2.366e-4]; % Mass ratios
 systems = {'Sun-Earth', 'Earth-Moon', 'Saturn-Titan'};
@@ -71,6 +113,7 @@ for i = 1:length(mu_values)
     mu = mu_values(i);
     fprintf('System: %s\n', systems{i});
     fprintf('  mu = %.6f\n', mu);
+    fprintf('\n');
 
     % Iterate through Lagrange points L1 to L5 (approximate locations)
     if i == 1 %Sun-Earth
@@ -121,15 +164,21 @@ for i = 1:length(mu_values)
         % Stability assessment (simple)
         if all(real(eigenvalues) == 0) && all(imag(eigenvalues) ~= 0)
             fprintf('    ==> LINEARLY STABLE (center)\n');
+            fprintf('\n');
         else
             fprintf('    ==> UNSTABLE (saddle or spiral)\n');
+            fprintf('\n');
         end
     end
+    fprintf('\n');
 end
+%}
 
-% --- Part (d): Simulating Orbits in the Earth-Moon System around L2 point ---
+
+%{
+%% --- Part (d): Simulating Orbits in the Earth-Moon System around L2 point ---
 disp('--- Part (d): Simulating Orbits around L2 ---');
-load('EM_L2304P1.mat'); % Loads x0, T, mu, perturbation
+load('EM_L2-304P1.mat'); % Loads x0, T, mu, perturbation
 
 options = odeset('RelTol', 1e-12, 'AbsTol', 1e-12);
 
@@ -319,3 +368,30 @@ title('L4 Comparison of Departure Motion (Velocity)');
 grid on;
 
 disp('Simulation complete.');
+
+% --- Function Definitions ---
+% CR3BP Equations of Motion (normalized)
+
+ function dxydt = cr3bp_eom(t, xy, mu)
+    x = xy(1);
+    y = xy(2);
+    xdot = xy(3);
+    ydot = xy(4);
+
+    p1 = sqrt((x + mu)^2 + y^2);
+    p2 = sqrt((x - 1 + mu)^2 + y^2);
+
+    xddot = x + 2*ydot - (1-mu)*(x+mu)/p1^3 - mu*(x-1+mu)/p2^3;
+    yddot = y - 2*xdot - (1-mu)*y/p1^3 - mu*y/p2^3;
+
+    dxydt = [xdot; ydot; xddot; yddot];
+end
+
+% Effective Potential
+function U = U_potential(x, y, mu)
+    p1 = sqrt((x + mu)^2 + y^2);
+    p2 = sqrt((x - 1 + mu)^2 + y^2);
+    U = 0.5*(x^2 + y^2) + (1-mu)/p1 + mu/p2;
+end
+%}
+
